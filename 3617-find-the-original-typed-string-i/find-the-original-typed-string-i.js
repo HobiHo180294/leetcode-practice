@@ -3,13 +3,7 @@
  * @return {number}
  */
 var possibleStringCount = function (word) {
-  let count = 1;
-
-  for (let i = 0; i < word.length; i++) {
-    if (word[i + 1] === word[i]) {
-      count++;
-    }
-  }
-
-  return count;
+    return 1 + word.match(/(.)\1*/g)
+        .map(g => g.length - 1)
+        .reduce((sum, x) => sum + (x > 0 ? x : 0), 0);
 };
