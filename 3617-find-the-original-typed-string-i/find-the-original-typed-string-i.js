@@ -3,11 +3,14 @@
  * @return {number}
  */
 var possibleStringCount = function (word) {
+    const MINIMAL_GROUP_LENGTH = 1;
+    const CONSECUTIVE_CHAR_GROUP_REGEX = /(.)\1*/g;
+
     return (
-        1 +
+        MINIMAL_GROUP_LENGTH +
         word
-            .match(/(.)\1*/g)
-            .map(group => group.length - 1)
-            .reduce((sum, x) => sum + x, 0)
+            .match(CONSECUTIVE_CHAR_GROUP_REGEX)
+            .map(group => group.length - MINIMAL_GROUP_LENGTH)
+            .reduce((total, variantsFromGroup) => total + variantsFromGroup, 0)
     );
 };
