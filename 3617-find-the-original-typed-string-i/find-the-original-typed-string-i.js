@@ -1,4 +1,5 @@
 function getPossibleStringCount() {
+    const ORIGINAL_STRING_COUNT = 1;
     const MINIMAL_GROUP_LENGTH = 1;
     const CONSECUTIVE_CHAR_GROUP_REGEX = /(.)\1*/g;
 
@@ -8,7 +9,7 @@ function getPossibleStringCount() {
      */
     return function (word) {
         return (
-            MINIMAL_GROUP_LENGTH +
+            ORIGINAL_STRING_COUNT +
             word
                 .match(CONSECUTIVE_CHAR_GROUP_REGEX)
                 .map(group => group.length - MINIMAL_GROUP_LENGTH)
