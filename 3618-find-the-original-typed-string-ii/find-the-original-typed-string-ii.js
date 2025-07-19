@@ -55,19 +55,13 @@ function getPossibleStringCount() {
 
     if (k <= consecutiveCharCounts.length) return totalCombinations;
 
-    let prevRow = [1, ...Array(k - 1).fill(0)];
+    const dpMatrix = fillDPMatrixWithPrefix(
+      consecutiveCharCounts,
+      consecutiveCharCounts.length + 1,
+      k
+    );
 
-    consecutiveCharCounts.forEach(windowSize => {
-      const prefix = buildPrefixSum(prevRow);
-      const currRow = Array.from({ length: k }, (_, j) =>
-        j === 0
-          ? 0
-          : (prefix[j] - prefix[Math.max(0, j - windowSize)] + MOD) % MOD
-      );
-      prevRow = currRow;
-    });
-
-    const forbidden = prevRow.reduce((sum, v) => (sum + v) % MOD, 0);
+    const forbidden = sumDPmatrixRow(dpMatrix, dpMatrix.length - 1);
 
     return (totalCombinations - forbidden + MOD) % MOD;
   };
