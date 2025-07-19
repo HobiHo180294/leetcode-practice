@@ -4,72 +4,73 @@ function getConsecutiveCharCounts(word) {
   return word.match(/(.)\1*/g).map(group => group.length);
 }
 
-function getTotalAmountOfCombinations(consecutiveCharCounts) {
+function getTotalCombinations(consecutiveCharCounts) {
   return consecutiveCharCounts.reduce(
     (multiplier, combinationsCount) => (multiplier * combinationsCount) % MOD,
     1
   );
 }
 
-function buildPrefixSum(arr) {
+function buildPrefixSum(numbers) {
   const prefix = [0];
 
-  for (let i = 0; i < arr.length; i++) {
-    prefix.push((prefix[i] + arr[i]) % MOD);
+  for (let i = 0; i < numbers.length; i++) {
+    prefix.push((prefix[i] + numbers[i]) % MOD);
   }
 
   return prefix;
 }
 
-function fillDPMatrixWithPrefix(windowsSizes, rows, columns) {
-  const matrix = [];
+function buildDPMatrixRow(previousRow, windowSize, columns) {
+  const prefix = buildPrefixSum(previousRow);
 
-  for (let i = 0; i < rows; i++) {
-    matrix[i] = [];
-
-    for (let j = 0; j < columns; j++) {
-      if (i === 0 && j === 0) {
-        matrix[i][j] = 1;
-      } else if (i === 0 || j === 0) {
-        matrix[i][j] = 0;
-      } else {
-        matrix[i][j] = 0;
-      }
-    }
-
-    if (i > 0) {
-      const prefix = buildPrefixSum(matrix[i - 1]);
-      const windowSize = windowsSizes[i - 1];
-      for (let j = 1; j < columns; j++) {
-        const l = Math.max(0, j - windowSize);
-        const r = j - 1;
-        matrix[i][j] = (prefix[r + 1] - prefix[l] + MOD) % MOD;
-      }
-    }
-  }
-
-  return matrix;
-}
-
-function sumLastRow(matrix) {
-  return matrix.at(-1).reduce((sum, value) => (sum + value) % MOD, 0);
-}
-
-var possibleStringCount = function (word, k) {
-  const consecutiveCharCounts = getConsecutiveCharCounts(word);
-
-  if (k <= consecutiveCharCounts.length) {
-    return getTotalAmountOfCombinations(consecutiveCharCounts) % MOD;
-  }
-
-  const rows = consecutiveCharCounts.length + 1;
-  const columns = k;
-  const matrix = fillDPMatrixWithPrefix(consecutiveCharCounts, rows, columns);
-
-  return (
-    (getTotalAmountOfCombinations(consecutiveCharCounts) -
-      sumLastRow(matrix) +
-      MOD) %
-    MOD
+  return Array.from({ length: columns }, (_, j) =>
+    j === 0 ? 0 : (prefix[j] - prefix[Math.max(0, j - windowSize)] + MOD) % MOD
   );
-};
+}
+
+function fillDPMatrixWithPrefix(windowsSizes, rows, columns) {
+  const baseRow = [1, ...Array(columns - 1).fill(0)];
+
+  return Array.from({ length: rows }).reduce(
+    (matrix, _, i) =>
+      i === 0
+        ? [baseRow]
+        : [
+            ...matrix,
+            buildDPMatrixRow(matrix[i - 1], windowsSizes[i - 1], columns),
+          ],
+    []
+  );
+}
+
+function sumDPmatrixRow(matrix, rowIndex) {
+  return matrix[rowIndex].reduce((sum, value) => (sum + value) % MOD, 0);
+}
+
+function getPossibleStringCount() {
+  return function (word, k) {
+    const consecutiveCharCounts = getConsecutiveCharCounts(word);
+    const totalCombinations = getTotalCombinations(consecutiveCharCounts) % MOD;
+
+    if (k <= consecutiveCharCounts.length) return totalCombinations;
+
+    let prevRow = [1, ...Array(k - 1).fill(0)];
+
+    consecutiveCharCounts.forEach(windowSize => {
+      const prefix = buildPrefixSum(prevRow);
+      const currRow = Array.from({ length: k }, (_, j) =>
+        j === 0
+          ? 0
+          : (prefix[j] - prefix[Math.max(0, j - windowSize)] + MOD) % MOD
+      );
+      prevRow = currRow;
+    });
+
+    const forbidden = prevRow.reduce((sum, v) => (sum + v) % MOD, 0);
+
+    return (totalCombinations - forbidden + MOD) % MOD;
+  };
+}
+
+const possibleStringCount = getPossibleStringCount();
