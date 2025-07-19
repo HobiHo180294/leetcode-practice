@@ -4,7 +4,7 @@ function getConsecutiveCharCounts(word) {
   return word.match(/(.)\1*/g).map(group => group.length);
 }
 
-function getTotalCombinations(consecutiveCharCounts) {
+function countTotalCombinations(consecutiveCharCounts) {
   return consecutiveCharCounts.reduce(
     (multiplier, combinationsCount) => (multiplier * combinationsCount) % MOD,
     1
@@ -21,49 +21,44 @@ function buildPrefixSum(numbers) {
   return prefix;
 }
 
-function buildDPMatrixRow(previousRow, windowSize, columns) {
-  const prefix = buildPrefixSum(previousRow);
+function countForbiddenCombinations(consecutiveCharCounts, k) {
+  let prevRow = new Array(k).fill(0);
+  let currRow = new Array(k).fill(0);
 
-  return Array.from({ length: columns }, (_, j) =>
-    j === 0 ? 0 : (prefix[j] - prefix[Math.max(0, j - windowSize)] + MOD) % MOD
-  );
-}
+  prevRow[0] = 1;
 
-function fillDPMatrixWithPrefix(windowsSizes, rows, columns) {
-  const baseRow = [1, ...Array(columns - 1).fill(0)];
+  for (let i = 0; i < consecutiveCharCounts.length; i++) {
+    const windowSize = consecutiveCharCounts[i];
+    const prefix = buildPrefixSum(prevRow);
 
-  return Array.from({ length: rows }).reduce(
-    (matrix, _, i) =>
-      i === 0
-        ? [baseRow]
-        : [
-            ...matrix,
-            buildDPMatrixRow(matrix[i - 1], windowsSizes[i - 1], columns),
-          ],
-    []
-  );
-}
+    for (let j = 1; j < k; j++) {
+      const left = Math.max(0, j - windowSize);
+      const right = j - 1;
+      currRow[j] = (prefix[right + 1] - prefix[left] + MOD) % MOD;
+    }
 
-function sumDPmatrixRow(matrix, rowIndex) {
-  return matrix[rowIndex].reduce((sum, value) => (sum + value) % MOD, 0);
+    [prevRow, currRow] = [currRow, prevRow];
+
+    currRow.fill(0);
+  }
+
+  return prevRow.reduce((sum, val) => (sum + val) % MOD, 0);
 }
 
 function getPossibleStringCount() {
   return function (word, k) {
     const consecutiveCharCounts = getConsecutiveCharCounts(word);
-    const totalCombinations = getTotalCombinations(consecutiveCharCounts) % MOD;
+    const totalCombinations =
+      countTotalCombinations(consecutiveCharCounts) % MOD;
 
     if (k <= consecutiveCharCounts.length) return totalCombinations;
 
-    const dpMatrix = fillDPMatrixWithPrefix(
+    const forbiddenCombinations = countForbiddenCombinations(
       consecutiveCharCounts,
-      consecutiveCharCounts.length + 1,
       k
     );
 
-    const forbidden = sumDPmatrixRow(dpMatrix, dpMatrix.length - 1);
-
-    return (totalCombinations - forbidden + MOD) % MOD;
+    return (totalCombinations - forbiddenCombinations + MOD) % MOD;
   };
 }
 
