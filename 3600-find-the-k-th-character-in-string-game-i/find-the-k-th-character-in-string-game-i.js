@@ -1,9 +1,7 @@
 function getNextWordPart(word) {
     let next = '';
 
-    for (const char of word) {
-        next += String.fromCharCode(char.charCodeAt(0) + 1);
-    }
+    for (const char of word) next += String.fromCharCode(char.charCodeAt(0) + 1);
 
     return word + next;
 }
@@ -15,9 +13,7 @@ function getNextWordPart(word) {
 const kthCharacter = function getkthCharacter(k) {
     let word = 'a';
 
-    while (word.length < k) {
-        word = getNextWordPart(word);
-    }
+    while (word.length < k) word = getNextWordPart(word);
 
     return word[k - 1];
 };
