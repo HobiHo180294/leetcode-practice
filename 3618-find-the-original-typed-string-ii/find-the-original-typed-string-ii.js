@@ -33,8 +33,7 @@ function countForbiddenCombinations(consecutiveCharCounts, k) {
 
         for (let j = 1; j < k; j++) {
             const left = Math.max(0, j - windowSize);
-            const right = j - 1;
-            currRow[j] = (prefix[right + 1] - prefix[left] + MOD) % MOD;
+            currRow[j] = (prefix[j] - prefix[left] + MOD) % MOD;
         }
 
         [prevRow, currRow] = [currRow, prevRow];
