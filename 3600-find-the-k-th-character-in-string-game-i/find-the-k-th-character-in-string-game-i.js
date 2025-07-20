@@ -8,20 +8,16 @@ function getNextWordPart(word) {
     return word + next;
 }
 
-function getkthCharacter() {
-    /**
-     * @param {number} k
-     * @return {character}
-     */
-    return function (k) {
-        let word = 'a';
+/**
+ * @param {number} k
+ * @return {character}
+ */
+const kthCharacter = function getkthCharacter(k) {
+    let word = 'a';
 
-        while (word.length < k) {
-            word = getNextWordPart(word);
-        }
+    while (word.length < k) {
+        word = getNextWordPart(word);
+    }
 
-        return word[k - 1];
-    };
-}
-
-const kthCharacter = getkthCharacter();
+    return word[k - 1];
+};
