@@ -44,26 +44,21 @@ function countForbiddenCombinations(consecutiveCharCounts, k) {
     return prevRow.reduce((sum, val) => (sum + val) % MOD, 0);
 }
 
-function getPossibleStringCount() {
-    /**
-     * @param {string} word
-     * @param {number} k
-     * @return {number}
-     */
-    return function (word, k) {
-        const consecutiveCharCounts = getConsecutiveCharCounts(word);
-        const totalCombinations =
-            countTotalCombinations(consecutiveCharCounts) % MOD;
+/**
+ * @param {string} word
+ * @param {number} k
+ * @return {number}
+ */
+const possibleStringCount = function getPossibleStringCount(word, k) {
+    const consecutiveCharCounts = getConsecutiveCharCounts(word);
+    const totalCombinations = countTotalCombinations(consecutiveCharCounts) % MOD;
 
-        if (k <= consecutiveCharCounts.length) return totalCombinations;
+    if (k <= consecutiveCharCounts.length) return totalCombinations;
 
-        const forbiddenCombinations = countForbiddenCombinations(
-            consecutiveCharCounts,
-            k
-        );
+    const forbiddenCombinations = countForbiddenCombinations(
+        consecutiveCharCounts,
+        k
+    );
 
-        return (totalCombinations - forbiddenCombinations + MOD) % MOD;
-    };
-}
-
-const possibleStringCount = getPossibleStringCount();
+    return (totalCombinations - forbiddenCombinations + MOD) % MOD;
+};
